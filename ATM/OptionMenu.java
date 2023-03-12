@@ -1,4 +1,6 @@
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -47,7 +49,9 @@ public class OptionMenu {
 				System.out.println("\nSelect the account you want to access: ");
 				System.out.println(" Type 1 - Checking Account");
 				System.out.println(" Type 2 - Savings Account");
-				System.out.println(" Type 3 - Exit");
+				System.out.println(" Type 3 - View Statement of All Account Balances");
+				System.out.println(" Type 4 - View Transaction History");
+				System.out.println(" Type 5 - Exit");
 				System.out.print("\nChoice: ");
 
 				int selection = menuInput.nextInt();
@@ -60,7 +64,14 @@ public class OptionMenu {
 					getSaving(acc);
 					break;
 				case 3:
+					getAllAccountBalances(acc);
+					break;
+				case 4:
+					displayHistory(acc);
+					break;
+				case 5:
 					end = true;
+					saveData();
 					break;
 				default:
 					System.out.println("\nInvalid Choice.");
@@ -138,6 +149,7 @@ public class OptionMenu {
 				case 4:
 					acc.getTransferInput("Savings");
 					break;
+
 				case 5:
 					end = true;
 					break;
@@ -150,6 +162,12 @@ public class OptionMenu {
 			}
 		}
 	}
+	public void getAllAccountBalances(Account acc) {
+			System.out.println("\nView Balance Statement: ");
+			System.out.println("Checking Balance: "+moneyFormat.format(acc.getCheckingBalance()));
+			System.out.println("Savings Balance: "+moneyFormat.format(acc.getSavingBalance()));
+	}
+
 
 	public void createAccount() throws IOException {
 		int cst_no = 0;
@@ -181,9 +199,24 @@ public class OptionMenu {
 		getLogin();
 	}
 
+	public void saveData() {
+		//save customer number, pin and account balances
+		String fileName = "output.txt";
+		try {
+			PrintWriter fileOut = new PrintWriter(fileName);
+			data.forEach(
+					(cust, acc) -> fileOut.println(
+							cust+","+acc.getPinNumber()+","+acc.getCheckingBalance()+","+acc.getSavingBalance()));
+			fileOut.close();
+
+		} catch(IOException e) {}
+
+	}
+
 	public void mainMenu() throws IOException {
-		data.put(952141, new Account(952141, 191904, 1000, 5000));
-		data.put(123, new Account(123, 123, 20000, 50000));
+		// data.put(952141, new Account(952141, 191904, 1000, 5000));
+		// data.put(123, new Account(123, 123, 20000, 50000));
+		loadData();
 		boolean end = false;
 		while (!end) {
 			try {
@@ -211,5 +244,48 @@ public class OptionMenu {
 		System.out.println("\nThank You for using this ATM.\n");
 		menuInput.close();
 		System.exit(0);
+	}
+
+	void loadData() {
+		try {
+			Scanner fileIn = new Scanner(new File("output.txt"));
+			while (fileIn.hasNext())
+			{
+				String lineIn = fileIn.nextLine();
+				String[] params = lineIn.split(",");
+				int cust = Integer.parseInt(params[0]);
+				int pin = Integer.parseInt(params[1]);
+				double savings = Double.parseDouble(params[2]);
+				double checking = Double.parseDouble(params[3]);
+				data.put(cust, new Account(cust, pin, checking, savings));
+			}
+		}
+		catch(IOException e) {
+
+		}
+
+	}
+
+	public void displayHistory(Account acc) {
+		String currentCustomer = Integer.toString(acc.getCustomerNumber());
+		try {
+			Scanner fileIn = new Scanner(new File("transactions.txt"));
+			System.out.println("Transaction History...");
+			while (fileIn.hasNext())
+			{
+				String lineIn = fileIn.nextLine();
+				String[] params = lineIn.split(",");
+				String cust = params[0];
+				String type = params[1];
+				String amount = params[2];
+				String description = params[3];
+				if(cust.equals(currentCustomer)) {
+					System.out.println(cust + " " + type + " " + amount + " " + description);
+				}
+			}
+		}
+		catch(IOException e) {
+
+		}
 	}
 }

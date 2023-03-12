@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -55,32 +59,44 @@ public class Account {
 
 	public double calcCheckingWithdraw(double amount) {
 		checkingBalance = (checkingBalance - amount);
+		String details = Integer.toString(customerNumber)+","+"checking"+","+Double.toString(amount * -1)+","+"withdrawal";
+		logTransaction(details);
 		return checkingBalance;
 	}
 
 	public double calcSavingWithdraw(double amount) {
 		savingBalance = (savingBalance - amount);
+		String details = Integer.toString(customerNumber)+","+"saving"+","+Double.toString(amount * -1)+","+"withdrawal";
+		logTransaction(details);
 		return savingBalance;
 	}
 
 	public double calcCheckingDeposit(double amount) {
 		checkingBalance = (checkingBalance + amount);
+		String details = Integer.toString(customerNumber)+","+"checking"+","+Double.toString(amount)+","+"deposit";
+		logTransaction(details);
 		return checkingBalance;
 	}
 
 	public double calcSavingDeposit(double amount) {
 		savingBalance = (savingBalance + amount);
+		String details = Integer.toString(customerNumber)+","+"saving"+","+Double.toString(amount)+","+"deposit";
+		logTransaction(details);
 		return savingBalance;
 	}
 
 	public void calcCheckTransfer(double amount) {
 		checkingBalance = checkingBalance - amount;
 		savingBalance = savingBalance + amount;
+		String details = Integer.toString(customerNumber)+","+"from checking"+","+Double.toString(amount* -1)+","+"transfer to savings";
+		logTransaction(details);
 	}
 
 	public void calcSavingTransfer(double amount) {
 		savingBalance = savingBalance - amount;
 		checkingBalance = checkingBalance + amount;
+		String details = Integer.toString(customerNumber)+","+"from saving"+","+Double.toString(amount)+","+"transfer to checking";
+		logTransaction(details);
 	}
 
 	public void getCheckingWithdrawInput() {
@@ -231,5 +247,16 @@ public class Account {
 				input.next();
 			}
 		}
+	}
+
+	public void logTransaction(String details) {
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("transactions.txt"), true));
+			System.out.println(details);
+			pw.println(details);
+			pw.close();
+		}
+		catch(IOException e) {}
+
 	}
 }

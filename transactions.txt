@@ -1,0 +1,7 @@
+123,checking,-230.0,withdrawal
+123,checking,-120.0,withdrawal
+1234,saving,980000.0,deposit
+1234,from saving,800.0,transfer to checking
+33333,checking,8000.0,deposit
+33333,saving,99999.0,deposit
+33333,from saving,300.0,transfer to checking
